@@ -6,7 +6,7 @@
 # 此处使用了Gemini的api
 ```
 
-![image.png](image.png)
+![image.png](1_004image.png)
 
 
 ```python
