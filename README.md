@@ -5,3 +5,5 @@
 第二讲：[第2讲_课程作业汇报_感知世界与词频统计分析.pptx](https://github.com/user-attachments/files/33236932/2._._.pptx)
 
 过程详见上传的文件夹
+
+大作业目前初步完成了数据的处理
