@@ -90,7 +90,7 @@ python extract_w3strings.py --help
 
 ---
 
-## ⚖️ 免责声明与版权归属（Disclaimer & Copyright）
+## ⚖️ 免责声明与版权归属（Disclaimer & Copyright） *AI辅助
 
 1. **学术与研究用途声明**
    * 本目录包含的文本数据及提取脚本（`extract_w3strings.py`）仅供课程大作业 **《巫师3》与《猎魔人》** 的学术研讨、文学对比分析、文化传播研究以及个人非商业性学习使用。
