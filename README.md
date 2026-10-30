@@ -6,6 +6,9 @@
 
 第三讲：[第3讲_课程作业汇报_感知世界与词云可视化实践.pptx](https://github.com/user-attachments/files/33858533/3._._.pptx)
 
+第四讲：[第4讲_课程作业汇报_文本情感分析与语义挖掘实践.pptx](https://github.com/user-attachments/files/34167783/4._._.pptx)
+
+
 过程详见上传的文件夹
 
 ## 大作业
