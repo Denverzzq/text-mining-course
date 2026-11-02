@@ -19,10 +19,10 @@ import jieba
 # ==========================================
 # 1. 语料文件路径配置 (请确保路径与本机一致。此处使用作者的环境为例)
 # ==========================================
-NOVEL_PATH = r"E:\w3_text\大作业——《巫师3》与《猎魔人》\《猎魔人》小说\猎魔人修订版全集（全七卷）【媲美《冰与火之歌》的波兰国宝级奇幻文学！讲述了一个关于命运和家庭的史诗故事！Netflix同名影视剧集播映！】 (... (z-library.sk, 1lib.sk, z-lib.sk).txt"
-GAME_DIALOGUES_PATH = r"E:\w3_text\大作业——《巫师3》与《猎魔人》\解包文本及程序\txt拆分\01_dialogues.txt"
-GAME_JOURNAL_PATH = r"E:\w3_text\大作业——《巫师3》与《猎魔人》\解包文本及程序\txt拆分\02_quest_journal.txt"
-GAME_BOOKS_PATH = r"E:\w3_text\大作业——《巫师3》与《猎魔人》\解包文本及程序\txt拆分\03_books_and_letters.txt"
+NOVEL_PATH = r"E:\text-mining-course\大作业——《巫师3》与《猎魔人》\《猎魔人》小说\猎魔人修订版全集（全七卷）【媲美《冰与火之歌》的波兰国宝级奇幻文学！讲述了一个关于命运和家庭的史诗故事！Netflix同名影视剧集播映！】 (... (z-library.sk, 1lib.sk, z-lib.sk).txt"
+GAME_DIALOGUES_PATH = r"E:\text-mining-course\大作业——《巫师3》与《猎魔人》\解包文本及程序\txt拆分\01_dialogues.txt"
+GAME_JOURNAL_PATH = r"E:\text-mining-course\大作业——《巫师3》与《猎魔人》\解包文本及程序\txt拆分\02_quest_journal.txt"
+GAME_BOOKS_PATH = r"E:\text-mining-course\大作业——《巫师3》与《猎魔人》\解包文本及程序\txt拆分\03_books_and_letters.txt"
 
 def load_data():
     print("[1/5] 正在读取语料文件...")
