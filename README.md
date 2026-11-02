@@ -1,17 +1,5 @@
-# 文本数据采集与知识图谱课程作业
 
-第一讲：[第1讲_课程作业汇报_感知世界与中文分词实践.pptx](https://github.com/user-attachments/files/32374747/1._._.pptx)
-
-第二讲：[第2讲_课程作业汇报_感知世界与词频统计分析.pptx](https://github.com/user-attachments/files/33236932/2._._.pptx)
-
-第三讲：[第3讲_课程作业汇报_感知世界与词云可视化实践.pptx](https://github.com/user-attachments/files/33858533/3._._.pptx)
-
-第四讲：[第4讲_课程作业汇报_文本情感分析与语义挖掘实践.pptx](https://github.com/user-attachments/files/34167783/4._._.pptx)
-
-
-过程详见上传的文件夹
-
-## 大作业
+# 大作业
 
 **注意**：team分支是小组**其他成员**进行大作业内容修改的分支，而**不应当**直接修改main分支。
 
@@ -32,3 +20,16 @@
   - 维度一（用词差异与情感时序动态演进）：`..\深度分析\维度一_用词差异的深度挖掘\`
   - 维度二（对话机制建模与言语行为动力学）：`..\深度分析\维度二_对话机制建模\`
   - 维度三（剧情因果图谱与分支状态机建模）：`..\深度分析\维度三_剧情因果图谱\`
+
+# 文本数据采集与知识图谱课程作业
+
+第一讲：[第1讲_课程作业汇报_感知世界与中文分词实践.pptx](https://github.com/user-attachments/files/32374747/1._._.pptx)
+
+第二讲：[第2讲_课程作业汇报_感知世界与词频统计分析.pptx](https://github.com/user-attachments/files/33236932/2._._.pptx)
+
+第三讲：[第3讲_课程作业汇报_感知世界与词云可视化实践.pptx](https://github.com/user-attachments/files/33858533/3._._.pptx)
+
+第四讲：[第4讲_课程作业汇报_文本情感分析与语义挖掘实践.pptx](https://github.com/user-attachments/files/34167783/4._._.pptx)
+
+
+过程详见上传的文件夹
