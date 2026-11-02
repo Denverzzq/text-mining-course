@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>维度一：用词差异与情感时序深度挖掘看板</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif; background: #0f1117; color: #e1e7ec; margin: 0; padding: 24px; line-height: 1.6; }
+        .header { text-align: center; margin-bottom: 30px; border-bottom: 1px solid #232838; padding-bottom: 20px; }
+        .header h1 { font-size: 28px; margin: 0 0 10px 0; color: #ffffff; letter-spacing: 0.5px; }
+        .header p { color: #8892b0; margin: 0; font-size: 15px; }
+        .metric-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .metric-card { background: #181c28; border: 1px solid #262c3e; border-radius: 10px; padding: 18px; text-align: center; }
+        .metric-card .title { font-size: 13px; color: #8892b0; margin-bottom: 6px; }
+        .metric-card .value { font-size: 26px; font-weight: bold; color: #00d2ff; }
+        .chart-container { background: #181c28; border: 1px solid #262c3e; border-radius: 12px; padding: 20px; margin-bottom: 30px; height: 420px; }
+        .card { background: #181c28; border: 1px solid #262c3e; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #262c3e; padding-bottom: 12px; margin-bottom: 14px; }
+        .card-header h3 { margin: 0; color: #ffb74d; font-size: 20px; }
+        .badge { background: #262c3e; color: #64ffda; padding: 4px 10px; border-radius: 20px; font-size: 13px; font-weight: bold; }
+        .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .col h4 { margin: 0 0 10px 0; font-size: 14px; }
+        .novel-col h4 { color: #7986cb; }
+        .game-col h4 { color: #4fc3f7; }
+        .pill-box { display: flex; flex-wrap: wrap; gap: 8px; }
+        .pill { padding: 6px 12px; border-radius: 6px; font-size: 13px; display: inline-flex; align-items: center; gap: 4px; }
+        .pill-novel { background: rgba(121, 134, 203, 0.15); border: 1px solid rgba(121, 134, 203, 0.4); color: #c5cae9; }
+        .pill-game { background: rgba(79, 195, 247, 0.15); border: 1px solid rgba(79, 195, 247, 0.4); color: #b3e5fc; }
+        .pill small { opacity: 0.7; font-size: 11px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>“白狼”的心电图与心智坐标</h1>
+        <p>维度一：受众视阈驱动的用词演进与情感时序全景看板（小说 157 万字 vs 游戏 155 万字）</p>
+    </div>
+
+    <div class="metric-cards">
+        <div class="metric-card">
+            <div class="title">小说全局情感均值 (读者)</div>
+            <div class="value" style="color: #7986cb;">-0.1507</div>
+        </div>
+        <div class="metric-card">
+            <div class="title">游戏全局情感均值 (玩家)</div>
+            <div class="value" style="color: #4fc3f7;">-0.0898</div>
+        </div>
+        <div class="metric-card">
+            <div class="title">游戏情感方差 (波动烈度)</div>
+            <div class="value" style="color: #ff7043;">0.9508</div>
+        </div>
+        <div class="metric-card">
+            <div class="title">情绪震荡比率 (游戏/小说)</div>
+            <div class="value" style="color: #64ffda;">1.04x</div>
+        </div>
+    </div>
+
+    <div class="chart-container" id="timelineChart"></div>
+
+    <h2 style="color: #ffffff; font-size: 20px; margin: 30px 0 15px 0;">🎯 核心意象的语义空间漂移（Semantic Shift）</h2>
+    
+        <div class="card">
+            <div class="card-header">
+                <h3>核心意象：【命运】</h3>
+                <span class="badge">语义相似重合率：0.0%</span>
+            </div>
+            <div class="comparison-grid">
+                <div class="col novel-col">
+                    <h4>📖 小说语境（面向读者：形而上哲学与悲剧宿命）</h4>
+                    <div class="pill-box"><span class='pill pill-novel'>孩子 <small>0.6539</small></span> <span class='pill pill-novel'>注定 <small>0.6456</small></span> <span class='pill pill-novel'>非凡 <small>0.6236</small></span> <span class='pill pill-novel'>命中注定 <small>0.6069</small></span> <span class='pill pill-novel'>重生 <small>0.5829</small></span> <span class='pill pill-novel'>出生 <small>0.5788</small></span> <span class='pill pill-novel'>之子 <small>0.5719</small></span> <span class='pill pill-novel'>这个 <small>0.5597</small></span></div>
+                </div>
+                <div class="col game-col">
+                    <h4>🎮 游戏语境（面向玩家：交互功能、任务机制与动作契约）</h4>
+                    <div class="pill-box"><span class='pill pill-game'>将来 <small>0.556</small></span> <span class='pill pill-game'>阴影 <small>0.5427</small></span> <span class='pill pill-game'>群岛 <small>0.4809</small></span> <span class='pill pill-game'>局势 <small>0.4738</small></span> <span class='pill pill-game'>功绩 <small>0.4529</small></span> <span class='pill pill-game'>多远 <small>0.4521</small></span> <span class='pill pill-game'>决定 <small>0.4423</small></span> <span class='pill pill-game'>能够 <small>0.4419</small></span></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h3>核心意象：【中立】</h3>
+                <span class="badge">语义相似重合率：6.7%</span>
+            </div>
+            <div class="comparison-grid">
+                <div class="col novel-col">
+                    <h4>📖 小说语境（面向读者：形而上哲学与悲剧宿命）</h4>
+                    <div class="pill-box"><span class='pill pill-novel'>维耶 <small>0.5964</small></span> <span class='pill pill-novel'>坦沙 <small>0.5848</small></span> <span class='pill pill-novel'>席位 <small>0.5614</small></span> <span class='pill pill-novel'>席儿 <small>0.5607</small></span> <span class='pill pill-novel'>艾希蕾 <small>0.5072</small></span> <span class='pill pill-novel'>蒂森 <small>0.4974</small></span> <span class='pill pill-novel'>代表 <small>0.4954</small></span> <span class='pill pill-novel'>保持中立 <small>0.4939</small></span></div>
+                </div>
+                <div class="col game-col">
+                    <h4>🎮 游戏语境（面向玩家：交互功能、任务机制与动作契约）</h4>
+                    <div class="pill-box"><span class='pill pill-game'>真令人 <small>0.7042</small></span> <span class='pill pill-game'>保持中立 <small>0.5681</small></span> <span class='pill pill-game'>城市 <small>0.533</small></span> <span class='pill pill-game'>将军 <small>0.5325</small></span> <span class='pill pill-game'>惊讶 <small>0.4842</small></span> <span class='pill pill-game'>大大 <small>0.4788</small></span> <span class='pill pill-game'>原则 <small>0.4775</small></span> <span class='pill pill-game'>的确 <small>0.4331</small></span></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h3>核心意象：【选择】</h3>
+                <span class="badge">语义相似重合率：0.0%</span>
+            </div>
+            <div class="comparison-grid">
+                <div class="col novel-col">
+                    <h4>📖 小说语境（面向读者：形而上哲学与悲剧宿命）</h4>
+                    <div class="pill-box"><span class='pill pill-novel'>小恶 <small>0.6085</small></span> <span class='pill pill-novel'>正确 <small>0.56</small></span> <span class='pill pill-novel'>放弃 <small>0.5572</small></span> <span class='pill pill-novel'>他人 <small>0.5459</small></span> <span class='pill pill-novel'>服从 <small>0.543</small></span> <span class='pill pill-novel'>组织 <small>0.5123</small></span> <span class='pill pill-novel'>决定 <small>0.5017</small></span> <span class='pill pill-novel'>明白 <small>0.4946</small></span></div>
+                </div>
+                <div class="col game-col">
+                    <h4>🎮 游戏语境（面向玩家：交互功能、任务机制与动作契约）</h4>
+                    <div class="pill-box"><span class='pill pill-game'>好多年 <small>0.6159</small></span> <span class='pill pill-game'>演技 <small>0.6088</small></span> <span class='pill pill-game'>宁可 <small>0.5882</small></span> <span class='pill pill-game'>拉德 <small>0.5819</small></span> <span class='pill pill-game'>保险 <small>0.5751</small></span> <span class='pill pill-game'>比较 <small>0.5371</small></span> <span class='pill pill-game'>死法 <small>0.5204</small></span> <span class='pill pill-game'>完美 <small>0.5116</small></span></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h3>核心意象：【报酬】</h3>
+                <span class="badge">语义相似重合率：6.7%</span>
+            </div>
+            <div class="comparison-grid">
+                <div class="col novel-col">
+                    <h4>📖 小说语境（面向读者：形而上哲学与悲剧宿命）</h4>
+                    <div class="pill-box"><span class='pill pill-novel'>伦顿 <small>0.6146</small></span> <span class='pill pill-novel'>会面 <small>0.5638</small></span> <span class='pill pill-novel'>人会 <small>0.5538</small></span> <span class='pill pill-novel'>要求 <small>0.5243</small></span> <span class='pill pill-novel'>遇到 <small>0.5023</small></span> <span class='pill pill-novel'>一份 <small>0.4853</small></span> <span class='pill pill-novel'>白发人 <small>0.4805</small></span> <span class='pill pill-novel'>逃走 <small>0.4801</small></span></div>
+                </div>
+                <div class="col game-col">
+                    <h4>🎮 游戏语境（面向玩家：交互功能、任务机制与动作契约）</h4>
+                    <div class="pill-box"><span class='pill pill-game'>利可 <small>0.7329</small></span> <span class='pill pill-game'>一分 <small>0.7201</small></span> <span class='pill pill-game'>这活 <small>0.7043</small></span> <span class='pill pill-game'>说好 <small>0.6372</small></span> <span class='pill pill-game'>谈好 <small>0.6323</small></span> <span class='pill pill-game'>功劳 <small>0.6264</small></span> <span class='pill pill-game'>一份 <small>0.6055</small></span> <span class='pill pill-game'>心意 <small>0.5983</small></span></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h3>核心意象：【怪物】</h3>
+                <span class="badge">语义相似重合率：0.0%</span>
+            </div>
+            <div class="comparison-grid">
+                <div class="col novel-col">
+                    <h4>📖 小说语境（面向读者：形而上哲学与悲剧宿命）</h4>
+                    <div class="pill-box"><span class='pill pill-novel'>生物 <small>0.5675</small></span> <span class='pill pill-novel'>野兽 <small>0.5659</small></span> <span class='pill pill-novel'>长角 <small>0.5296</small></span> <span class='pill pill-novel'>一头 <small>0.5025</small></span> <span class='pill pill-novel'>这头 <small>0.4954</small></span> <span class='pill pill-novel'>杀戮 <small>0.4897</small></span> <span class='pill pill-novel'>奇摩 <small>0.4822</small></span> <span class='pill pill-novel'>蜘蛛 <small>0.4774</small></span></div>
+                </div>
+                <div class="col game-col">
+                    <h4>🎮 游戏语境（面向玩家：交互功能、任务机制与动作契约）</h4>
+                    <div class="pill-box"><span class='pill pill-game'>委托 <small>0.6113</small></span> <span class='pill pill-game'>女妖 <small>0.5904</small></span> <span class='pill pill-game'>食尸 <small>0.568</small></span> <span class='pill pill-game'>吸血 <small>0.554</small></span> <span class='pill pill-game'>狮鹫 <small>0.5396</small></span> <span class='pill pill-game'>出没 <small>0.517</small></span> <span class='pill pill-game'>怪兽 <small>0.5061</small></span> <span class='pill pill-game'>也罢 <small>0.49</small></span></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h3>核心意象：【猎魔人】</h3>
+                <span class="badge">语义相似重合率：6.7%</span>
+            </div>
+            <div class="comparison-grid">
+                <div class="col novel-col">
+                    <h4>📖 小说语境（面向读者：形而上哲学与悲剧宿命）</h4>
+                    <div class="pill-box"><span class='pill pill-novel'>杰洛特 <small>0.8966</small></span> <span class='pill pill-novel'>知道 <small>0.6127</small></span> <span class='pill pill-novel'>因为 <small>0.6027</small></span> <span class='pill pill-novel'>什么 <small>0.5916</small></span> <span class='pill pill-novel'>自己 <small>0.5865</small></span> <span class='pill pill-novel'>丹德里恩 <small>0.5806</small></span> <span class='pill pill-novel'>希瑞 <small>0.5619</small></span> <span class='pill pill-novel'>术士 <small>0.5601</small></span></div>
+                </div>
+                <div class="col game-col">
+                    <h4>🎮 游戏语境（面向玩家：交互功能、任务机制与动作契约）</h4>
+                    <div class="pill-box"><span class='pill pill-game'>杰洛特 <small>0.569</small></span> <span class='pill pill-game'>叮咚 <small>0.536</small></span> <span class='pill pill-game'>就是 <small>0.4961</small></span> <span class='pill pill-game'>利维 <small>0.4847</small></span> <span class='pill pill-game'>谢谢 <small>0.4797</small></span> <span class='pill pill-game'>大师 <small>0.4605</small></span> <span class='pill pill-game'>还是 <small>0.4587</small></span> <span class='pill pill-game'>那个 <small>0.4449</small></span></div>
+                </div>
+            </div>
+        </div>
+        
+
+    <script>
+        var chartDom = document.getElementById('timelineChart');
+        var myChart = echarts.init(chartDom, 'dark');
+        var option = {
+            backgroundColor: 'transparent',
+            title: {
+                text: '两套媒介叙事进程中的情感极性时序波动对比 (100个时间片滑动采样)',
+                left: 'center',
+                textStyle: { color: '#e1e7ec', fontSize: 16 }
+            },
+            tooltip: { trigger: 'axis' },
+            legend: { data: ['小说叙事情感流 (读者视角)', '游戏交互情感波 (玩家视角)'], top: 30 },
+            grid: { left: '4%', right: '4%', bottom: '8%', containLabel: true },
+            xAxis: { type: 'category', boundaryGap: false, data: ["阶段1", "阶段2", "阶段3", "阶段4", "阶段5", "阶段6", "阶段7", "阶段8", "阶段9", "阶段10", "阶段11", "阶段12", "阶段13", "阶段14", "阶段15", "阶段16", "阶段17", "阶段18", "阶段19", "阶段20", "阶段21", "阶段22", "阶段23", "阶段24", "阶段25", "阶段26", "阶段27", "阶段28", "阶段29", "阶段30", "阶段31", "阶段32", "阶段33", "阶段34", "阶段35", "阶段36", "阶段37", "阶段38", "阶段39", "阶段40", "阶段41", "阶段42", "阶段43", "阶段44", "阶段45", "阶段46", "阶段47", "阶段48", "阶段49", "阶段50", "阶段51", "阶段52", "阶段53", "阶段54", "阶段55", "阶段56", "阶段57", "阶段58", "阶段59", "阶段60", "阶段61", "阶段62", "阶段63", "阶段64", "阶段65", "阶段66", "阶段67", "阶段68", "阶段69", "阶段70", "阶段71", "阶段72", "阶段73", "阶段74", "阶段75", "阶段76", "阶段77", "阶段78", "阶段79", "阶段80", "阶段81", "阶段82", "阶段83", "阶段84", "阶段85", "阶段86", "阶段87", "阶段88", "阶段89", "阶段90", "阶段91", "阶段92", "阶段93", "阶段94", "阶段95", "阶段96", "阶段97", "阶段98", "阶段99", "阶段100"] },
+            yAxis: { type: 'value', name: '情感极性 (-1.0 负极 ~ +1.0 正极)' },
+            series: [
+                {
+                    name: '小说叙事情感流 (读者视角)',
+                    type: 'line',
+                    smooth: true,
+                    data: [-0.5278, -0.715, -0.447, -0.3772, -0.2069, -0.0294, -0.3871, -0.037, -0.1837, -0.12, -0.1429, 0.1707, -0.2222, 0.0, -0.025, 0.04, -0.2571, -0.0164, 0.1379, -0.2273, -0.6981, -0.1892, -0.4216, -0.5082, -0.2817, -0.1321, -0.1228, -0.1458, -0.3846, -0.3222, 0.1309, 0.0588, -0.1667, 0.2075, -0.3429, -0.1818, -0.2222, -0.2973, -0.2453, -0.0244, -0.5484, 0.4971, 0.1554, -0.1287, -0.5873, -0.1748, 0.12, -0.2727, -0.7561, -0.4138, -0.1481, 0.0149, -0.1111, -0.48, -0.2787, -0.1579, -0.1837, -0.2222, -0.0952, 0.0588, -0.2, -0.3, 0.1318, -0.2857, -0.0378, -0.0333, -0.013, -0.1892, 0.0256, 0.0526, -0.0635, 0.1923, -0.0556, 0.2137, 0.2857, -0.1975, -0.3333, -0.2787, -0.2755, -0.6, 0.2022, -0.2468, 0.0865, 0.2203, -0.3415, 0.2609, 0.2019, -0.2414, -0.195, 0.0566, -0.16, -0.4783, -0.1763, -0.4581, -0.1053, 0.0448, 0.2778, -0.1111, 0.0847, -0.4545],
+                    itemStyle: { color: '#7986cb' },
+                    lineStyle: { width: 2.5 }
+                },
+                {
+                    name: '游戏交互情感波 (玩家视角)',
+                    type: 'line',
+                    smooth: false,
+                    data: [0.0513, -0.1875, -0.098, -0.0746, -0.1602, -0.1302, -0.0922, 0.0417, -0.3393, -0.2979, -0.2424, -0.1471, -0.2364, -0.2308, 0.1276, 0.0667, 0.1268, -0.1311, -0.1613, -0.2615, -0.3295, -0.2414, -0.0612, -0.0778, -0.0154, 0.0545, -0.0233, -0.1364, -0.0438, -0.2451, 0.0719, 0.2857, -0.3548, -0.44, -0.2396, -0.2857, -0.12, -0.1071, -0.3333, -0.0805, -0.082, 0.1549, -0.4359, -0.2973, -0.24, -0.1692, -0.1132, -0.2075, -0.0685, -0.1293, -0.1714, -0.0769, -0.018, 0.0473, 0.0823, -0.0423, -0.0532, -0.1866, -0.4315, -0.0294, 0.027, -0.2414, -0.1304, -0.5062, -0.0887, -0.3978, -0.5212, 0.1139, -0.1111, 0.2093, 0.1333, 0.2652, 0.087, 0.0615, 0.0741, 0.027, -0.1931, -0.2828, -0.1902, 0.181, -0.0361, 0.0149, 0.1421, 0.1171, 0.071, -0.1775, -0.2952, 0.0648, 0.3436, 0.1581, -0.1111, 0.1084, -0.1429, -0.0401, 0.027, 0.1771, -0.1013, -0.0742, -0.0588, -0.1155],
+                    itemStyle: { color: '#ff7043' },
+                    lineStyle: { width: 1.5, type: 'dashed' }
+                }
+            ]
+        };
+        myChart.setOption(option);
+        window.onresize = function() { myChart.resize(); };
+    </script>
+</body>
+</html>

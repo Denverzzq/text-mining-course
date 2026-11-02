@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>维度二：对话机制建模与言语行为动力学交互展台</title>
+    <!-- 引入 ECharts 5 官方 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0f1115;
+            --bg-card: #181c24;
+            --border-color: #272f3d;
+            --text-main: #e6edf3;
+            --text-muted: #8b949e;
+            --novel-color: #58a6ff;
+            --game-color: #f0883e;
+            --accent-green: #3fb950;
+            --accent-purple: #bc8cff;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            padding: 30px 20px;
+            line-height: 1.6;
+        }
+        .header {
+            text-align: center;
+            max-width: 1200px;
+            margin: 0 auto 30px auto;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+        }
+        .header h1 {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #e6edf3 30%, #8b949e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        .grid {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+        .card-title {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-left: 4px solid var(--novel-color);
+            padding-left: 12px;
+        }
+        .card-title.game-accent {
+            border-left-color: var(--game-color);
+        }
+        .chart-container {
+            width: 100%;
+            height: 380px;
+        }
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-box {
+            background: #12151c;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+        .stat-value {
+            font-size: 22px;
+            font-weight: 700;
+            font-family: monospace;
+        }
+        .novel-val { color: var(--novel-color); }
+        .game-val { color: var(--game-color); }
+        .radar-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .radar-info {
+            flex: 1;
+            padding-right: 20px;
+        }
+        .radar-info h4 {
+            margin-bottom: 10px;
+            font-size: 15px;
+            color: #d29922;
+        }
+        .radar-info p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        .radar-chart-wrap {
+            flex: 1.2;
+            height: 360px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>《巫师3》与《猎魔人》跨媒介文本量化研究展台 · 维度二</h1>
+        <p>受众心智驱动下的对话机制建模：认知负荷截断效应、言语行为马尔可夫转移与声纹极化</p>
+    </div>
+
+    <!-- 顶部核心数据概览 -->
+    <div style="max-width: 1300px; margin: 0 auto 24px auto;">
+        <div class="stats-summary">
+            <div class="stat-box">
+                <div class="stat-label">单轮平均字数 (Novel vs Game)</div>
+                <div class="stat-value"><span class="novel-val">27.99</span> / <span class="game-val">18.07</span></div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">极限峰值长度 (Novel vs Game)</div>
+                <div class="stat-value"><span class="novel-val">2542</span> / <span class="game-val">150</span></div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">表达类发话占比 (E)</div>
+                <div class="stat-value"><span class="novel-val">2.13%</span> → <span class="game-val">4.59%</span></div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">杰洛特实用议价指数</div>
+                <div class="stat-value"><span class="novel-val">1.82%</span> → <span class="game-val">16.3%</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid">
+        <!-- 图表 1: 对话长度分布与认知截断 -->
+        <div class="card full-width">
+            <div class="card-title">
+                <span>1. 发话轮次长度核密度分布与物理截断（Cognitive Load & UI Truncation）</span>
+                <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">游戏在 150 字处遭遇绝对硬截断，小说呈现肥尾幂律</span>
+            </div>
+            <div id="chart-length" class="chart-container" style="height: 360px;"></div>
+        </div>
+
+        <!-- 图表 2: 小说言语行为转移矩阵 -->
+        <div class="card">
+            <div class="card-title">
+                <span>2. 小说发话言语行为转移矩阵 (Markov)</span>
+                <span style="font-size: 12px; color: var(--novel-color);">读者审美视角</span>
+            </div>
+            <div id="chart-novel-markov" class="chart-container"></div>
+        </div>
+
+        <!-- 图表 3: 游戏言语行为转移矩阵 -->
+        <div class="card">
+            <div class="card-title game-accent">
+                <span>3. 游戏台词言语行为转移矩阵 (Markov)</span>
+                <span style="font-size: 12px; color: var(--game-color);">玩家决策视角</span>
+            </div>
+            <div id="chart-game-markov" class="chart-container"></div>
+        </div>
+
+        <!-- 图表 4: 杰洛特跨媒介声纹极化雷达图 -->
+        <div class="card full-width">
+            <div class="card-title">
+                <span>4. 杰洛特角色声纹跨媒介极化（Voiceprint Specialization）</span>
+                <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">文学哲思浪人 → 具身交互专家</span>
+            </div>
+            <div class="radar-box">
+                <div class="radar-info">
+                    <h4>声纹极化三大发现</h4>
+                    <p>• <strong>哲学纠葛指数骤降</strong>：小说中杰洛特就“中立”与“两害相权”的反复辩驳在游戏中被主动过滤，降低玩家疲劳度。</p>
+                    <p>• <strong>实用议价指数飙升</strong>：金钱、克朗、赏金与定金谈判提升近 4 倍，契合佣兵任务系统的驱动闭环。</p>
+                    <p>• <strong>冷面反讽成为交互润滑剂</strong>：反问、冷笑话与反诘维持在极高比重，塑造干练不羁的 3A 角色扮演替身。</p>
+                </div>
+                <div class="radar-chart-wrap" id="chart-radar"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 1. 发话长度分布图
+        const chartLength = echarts.init(document.getElementById('chart-length'));
+        chartLength.setOption({
+            tooltip: { trigger: 'axis', formatter: params => `字数: ${params[0].name}<br/>${params[0].seriesName}: ${params[0].value}%<br/>${params[1].seriesName}: ${params[1].value}%` },
+            legend: { data: ['《猎魔人》小说对话 (面向读者)', '《巫师3》游戏对话 (面向玩家)'], textStyle: { color: '#8b949e' } },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: ["1\u5b57", "2\u5b57", "3\u5b57", "4\u5b57", "5\u5b57", "6\u5b57", "7\u5b57", "8\u5b57", "9\u5b57", "10\u5b57", "11\u5b57", "12\u5b57", "13\u5b57", "14\u5b57", "15\u5b57", "16\u5b57", "17\u5b57", "18\u5b57", "19\u5b57", "20\u5b57", "21\u5b57", "22\u5b57", "23\u5b57", "24\u5b57", "25\u5b57", "26\u5b57", "27\u5b57", "28\u5b57", "29\u5b57", "30\u5b57", "31\u5b57", "32\u5b57", "33\u5b57", "34\u5b57", "35\u5b57", "36\u5b57", "37\u5b57", "38\u5b57", "39\u5b57", "40\u5b57", "41\u5b57", "42\u5b57", "43\u5b57", "44\u5b57", "45\u5b57", "46\u5b57", "47\u5b57", "48\u5b57", "49\u5b57", "50\u5b57", "51\u5b57", "52\u5b57", "53\u5b57", "54\u5b57", "55\u5b57", "56\u5b57", "57\u5b57", "58\u5b57", "59\u5b57", "60\u5b57", "61\u5b57", "62\u5b57", "63\u5b57", "64\u5b57", "65\u5b57", "66\u5b57", "67\u5b57", "68\u5b57", "69\u5b57", "70\u5b57", "71\u5b57", "72\u5b57", "73\u5b57", "74\u5b57", "75\u5b57", "76\u5b57", "77\u5b57", "78\u5b57", "79\u5b57", "80\u5b57"],
+                axisLine: { lineStyle: { color: '#272f3d' } },
+                axisLabel: { color: '#8b949e', interval: 4 }
+            },
+            yAxis: {
+                type: 'value',
+                name: '占比 (%)',
+                nameTextStyle: { color: '#8b949e' },
+                splitLine: { lineStyle: { color: '#1f242e' } },
+                axisLabel: { color: '#8b949e' }
+            },
+            series: [
+                {
+                    name: '《猎魔人》小说对话 (面向读者)',
+                    type: 'line',
+                    smooth: true,
+                    data: [0.103, 2.303, 6.477, 6.621, 7.137, 5.98, 6.068, 5.302, 4.41, 3.74, 3.025, 2.885, 2.406, 2.115, 1.846, 1.628, 1.337, 1.242, 1.308, 1.135, 1.039, 1.08, 0.888, 0.881, 0.796, 0.744, 0.659, 0.486, 0.427, 0.634, 0.892, 0.744, 0.534, 0.461, 0.472, 0.542, 0.512, 0.468, 0.461, 0.497, 0.446, 0.424, 0.313, 0.376, 0.339, 0.435, 0.379, 0.291, 0.446, 0.324, 0.368, 0.262, 0.321, 0.35, 0.306, 0.298, 0.254, 0.262, 0.317, 0.273, 0.239, 0.247, 0.313, 0.276, 0.251, 0.236, 0.265, 0.21, 0.243, 0.21, 0.173, 0.258, 0.188, 0.199, 0.177, 0.151, 0.199, 0.158, 0.136, 0.181],
+                    itemStyle: { color: '#58a6ff' },
+                    areaStyle: { opacity: 0.15, color: '#58a6ff' }
+                },
+                {
+                    name: '《巫师3》游戏对话 (面向玩家)',
+                    type: 'line',
+                    smooth: true,
+                    data: [0.028, 1.384, 3.169, 3.827, 3.906, 4.616, 5.27, 5.337, 5.339, 4.892, 4.632, 4.299, 3.776, 3.397, 3.124, 3.026, 2.695, 2.475, 2.416, 2.088, 1.943, 1.84, 1.794, 1.659, 1.557, 1.389, 1.315, 1.342, 1.214, 1.143, 1.069, 0.955, 0.852, 0.855, 0.733, 0.79, 0.629, 0.596, 0.669, 0.558, 0.463, 0.425, 0.396, 0.415, 0.34, 0.299, 0.274, 0.278, 0.279, 0.256, 0.265, 0.199, 0.209, 0.219, 0.172, 0.161, 0.154, 0.163, 0.128, 0.155, 0.118, 0.098, 0.118, 0.087, 0.086, 0.059, 0.058, 0.073, 0.042, 0.064, 0.065, 0.054, 0.053, 0.057, 0.042, 0.028, 0.041, 0.038, 0.052, 0.033],
+                    itemStyle: { color: '#f0883e' },
+                    areaStyle: { opacity: 0.2, color: '#f0883e' }
+                }
+            ]
+        });
+
+        // 2 & 3. 转移矩阵热力图配置生成函数
+        const stateLabels = ['断言类 (A)', '指令类 (D)', '承诺类 (C)', '表达类 (E)'];
+        function getMatrixData(matrixObj) {
+            const res = [];
+            const keys = ['A', 'D', 'C', 'E'];
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 4; j++) {
+                    res.push([j, 3 - i, matrixObj[keys[i]][keys[j]]]);
+                }
+            }
+            return res;
+        }
+
+        const chartNovelM = echarts.init(document.getElementById('chart-novel-markov'));
+        chartNovelM.setOption({
+            tooltip: { position: 'top', formatter: p => `转移: ${stateLabels[3 - p.data[1]]} → ${stateLabels[p.data[0]]}<br/>转移概率: ${p.data[2]}` },
+            grid: { left: '15%', right: '8%', bottom: '15%', top: '8%' },
+            xAxis: { type: 'category', data: stateLabels, splitArea: { show: true }, axisLabel: { color: '#8b949e', fontSize: 11 } },
+            yAxis: { type: 'category', data: [...stateLabels].reverse(), splitArea: { show: true }, axisLabel: { color: '#8b949e', fontSize: 11 } },
+            visualMap: { min: 0, max: 0.7, calculable: false, orient: 'horizontal', left: 'center', bottom: '0%', inRange: { color: ['#12151c', '#1f6feb', '#58a6ff'] }, textStyle: { color: '#8b949e' } },
+            series: [{
+                type: 'heatmap',
+                data: getMatrixData({"A": {"A": 0.6291, "D": 0.3218, "C": 0.0277, "E": 0.0213}, "D": {"A": 0.6514, "D": 0.3079, "C": 0.0216, "E": 0.0191}, "C": {"A": 0.6523, "D": 0.2684, "C": 0.0584, "E": 0.0209}, "E": {"A": 0.5606, "D": 0.3616, "C": 0.0242, "E": 0.0536}}),
+                label: { show: true, color: '#fff', fontSize: 12 },
+                emphasis: { itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0, 0, 0, 0.5)' } }
+            }]
+        });
+
+        const chartGameM = echarts.init(document.getElementById('chart-game-markov'));
+        chartGameM.setOption({
+            tooltip: { position: 'top', formatter: p => `转移: ${stateLabels[3 - p.data[1]]} → ${stateLabels[p.data[0]]}<br/>转移概率: ${p.data[2]}` },
+            grid: { left: '15%', right: '8%', bottom: '15%', top: '8%' },
+            xAxis: { type: 'category', data: stateLabels, splitArea: { show: true }, axisLabel: { color: '#8b949e', fontSize: 11 } },
+            yAxis: { type: 'category', data: [...stateLabels].reverse(), splitArea: { show: true }, axisLabel: { color: '#8b949e', fontSize: 11 } },
+            visualMap: { min: 0, max: 0.7, calculable: false, orient: 'horizontal', left: 'center', bottom: '0%', inRange: { color: ['#12151c', '#bd561d', '#f0883e'] }, textStyle: { color: '#8b949e' } },
+            series: [{
+                type: 'heatmap',
+                data: getMatrixData({"A": {"A": 0.6507, "D": 0.2839, "C": 0.0211, "E": 0.0443}, "D": {"A": 0.6021, "D": 0.33, "C": 0.024, "E": 0.0439}, "C": {"A": 0.5877, "D": 0.2886, "C": 0.074, "E": 0.0497}, "E": {"A": 0.5906, "D": 0.3069, "C": 0.023, "E": 0.0795}}),
+                label: { show: true, color: '#fff', fontSize: 12 },
+                emphasis: { itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0, 0, 0, 0.5)' } }
+            }]
+        });
+
+        // 4. 雷达图
+        const chartRadar = echarts.init(document.getElementById('chart-radar'));
+        chartRadar.setOption({
+            tooltip: { trigger: 'item' },
+            legend: { data: ['原著杰洛特 (面向读者)', '游戏杰洛特 (面向玩家)'], textStyle: { color: '#8b949e' }, top: '0%' },
+            radar: {
+                indicator: [
+                    { name: '冷面反讽指数', max: 50 },
+                    { name: '实用议价指数', max: 35 },
+                    { name: '行动促动指数', max: 25 },
+                    { name: '发话字数紧凑度', max: 40 },
+                    { name: '哲学伦理指数', max: 20 }
+                ],
+                shape: 'polygon',
+                splitNumber: 4,
+                axisName: { color: '#8b949e', fontSize: 12 },
+                splitLine: { lineStyle: { color: '#272f3d' } },
+                splitArea: { show: true, areaStyle: { color: ['#161b22', '#12151c'] } },
+                axisLine: { lineStyle: { color: '#272f3d' } }
+            },
+            series: [{
+                type: 'radar',
+                data: [
+                    {
+                        value: [20.82, 1.82, 2.81, 15, 4.07],
+                        name: '原著杰洛特 (面向读者)',
+                        itemStyle: { color: '#58a6ff' },
+                        areaStyle: { opacity: 0.25, color: '#58a6ff' }
+                    },
+                    {
+                        value: [28.09, 16.3, 8.64, 35, 3.79],
+                        name: '游戏杰洛特 (面向玩家)',
+                        itemStyle: { color: '#f0883e' },
+                        areaStyle: { opacity: 0.35, color: '#f0883e' }
+                    }
+                ]
+            }]
+        });
+
+        window.addEventListener('resize', () => {
+            chartLength.resize();
+            chartNovelM.resize();
+            chartGameM.resize();
+            chartRadar.resize();
+        });
+    </script>
+</body>
+</html>
