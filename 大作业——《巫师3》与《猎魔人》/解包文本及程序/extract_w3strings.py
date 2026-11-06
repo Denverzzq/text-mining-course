@@ -1,16 +1,16 @@
-
+# -*- coding: utf-8 -*-
 """
-Witcher 3 .w3strings Decoder & Story Text Extractor
-Supports:
-  - Version 162 / 163 (Classic Witcher 3, UTF-16LE)
-  - Version 164 (Next-Gen Witcher 3, UTF-8)
+《巫师3》.w3strings 字符串解密与剧情文本提取工具
+支持版本：
+  - 版本 162 / 163（经典版《巫师3》，UTF-16LE 编码）
+  - 版本 164（次世代版《巫师3》，UTF-8 编码）
 
-Features:
-  1. Complete string unpacking to CSV (ID, KeyHash, Text)
-  2. Dialogue & subtitle extraction (ordered by string ID for dialogue tree flow)
-  3. Quest logs & Dandelion journal entries
-  4. In-game books, letters, notes & bestiary entries
-  5. Cleaned formatting (converts <br> to paragraphs, strips HTML tags)
+主要功能：
+  1. 全量字符串解包并导出为 CSV（包含 ID、KeyHash、文本内容）
+  2. 剧情对话与字幕提取（按字符串 ID 排序，保持对话树自然流向）
+  3. 任务日志与丹德里恩记述提取
+  4. 游戏内书籍文献、书信手稿与怪物图鉴提取
+  5. 文本格式清洗（将 <br> 转换为换行段落，去除 HTML 样式标签）
 """
 
 import os
@@ -19,7 +19,7 @@ import struct
 import re
 import argparse
 
-# Official CD Projekt Red language keys and obfuscation magic values
+# CD Projekt Red 官方语言标识与混淆解密映射表
 LANGUAGES = {
     0x00000000: ("none/cn", 0x00000000),
     0x24987354: ("cz", 0x21793217),
@@ -36,7 +36,7 @@ LANGUAGES = {
 }
 
 def read_section_count(f):
-    """Reads a bit6-encoded section count from the binary stream."""
+    """从二进制流中读取 bit6 编码的区块计数。"""
     first = f.read(1)
     if not first:
         raise EOFError("Stream ends where a section count is expected")
@@ -56,8 +56,8 @@ def read_section_count(f):
 
 def deobfuscate(stored_bytes, length, magic, unit):
     """
-    Deobfuscates character bytes stored in w3strings containers.
-    unit = 1 for UTF-8 (v164), unit = 2 for UTF-16LE (v162/163).
+    对 w3strings 容器中存储的字符字节进行解混淆解密。
+    unit = 1 表示 UTF-8 编码（次世代版 v164），unit = 2 表示 UTF-16LE 编码（经典版 v162/163）。
     """
     if magic == 0:
         if unit == 2:
@@ -80,7 +80,7 @@ def deobfuscate(stored_bytes, length, magic, unit):
     return res.decode('utf-8', errors='replace')
 
 def clean_html_formatting(text):
-    """Converts HTML breaks to newlines and cleans tags for comfortable reading."""
+    """将 HTML 换行标签转换为实际换行符，并清洗多余标签以方便阅读。"""
     t = re.sub(r'<br\s*/?>', '\n', text, flags=re.IGNORECASE)
     t = re.sub(r'</?(?:i|b|font|color)[^>]*>', '', t, flags=re.IGNORECASE)
     t = re.sub(r'\n{3,}', '\n\n', t)
@@ -88,25 +88,25 @@ def clean_html_formatting(text):
 
 def classify_text(act_id, khash, text):
     """
-    Categorizes strings into:
-    - 'dialogue': Spoken NPC lines, subtitles, player choices
-    - 'journal': Quest logs, Dandelion summaries, mission objectives
-    - 'book_letter': In-game books, letters, notes, bestiary descriptions
-    - 'ui_system': System menus, graphics settings, credits, item stats/names
+    将文本字符串分类为：
+    - 'dialogue': NPC台词、剧情字幕、玩家对话选项
+    - 'journal': 任务日志、丹德里恩记述、任务目标简述
+    - 'book_letter': 游戏内书籍、信件、便签、怪物图鉴描述
+    - 'ui_system': 系统菜单、图像设置、演职员表、物品属性/名称等系统文本
     """
     t = text.strip()
     if not t:
         return 'ui_system', t
     
-    # 1. Credits & Staff
+    # 1. 演职员表与制作人员名单
     if any(k in t for k in [
         'CD PROJEKT', '工程師', '工程师', '總監', '总监', '程式設計師', '程序员', '經理', '经理',
-        '專员', '专员', '助理', '服務臺', '服务台', '品保', '质保', '遙測', '遥测',
+        '專員', '专员', '助理', '服務臺', '服务台', '品保', '质保', '遙測', '遥测',
         '遊戲分析', '游戏分析', '資深', '资深', '首席', '副總裁', '副总裁'
     ]) and len(t) < 40 and not any(p in t for p in ['。', '！', '？', '…', '!', '?']):
         return 'ui_system', t
         
-    # 2. Hardware / Console / Graphics / Settings / System Popups
+    # 2. 硬件/主机平台/画质图形设置/系统弹窗与按键提示
     if any(k in t for k in [
         'XBOX', 'PlayStation', 'DualShock', 'DirectX', 'NVIDIA', 'AMD',
         '儲存', '存储', '保存', '存檔', '存档', '登入', '登录', '主選單', '主菜单',
@@ -120,23 +120,23 @@ def classify_text(act_id, khash, text):
     ]):
         return 'ui_system', t
 
-    # 3. Item names & stats with KeyHash
+    # 3. 带 KeyHash 的装备物品名称与数值属性
     if khash is not None:
         if not any(p in t for p in ['。', '！', '？', '…', '：', '”', '“', '!', '?']) and len(t) < 25:
             return 'ui_system', t
         if re.match(r'^[+-]?\d+[%点點數秒]?\s*[\u4e00-\u9fa5]+', t) or any(k in t for k in ['傷害削減', '伤害削减', '護甲增加', '护甲增加', '毒性等級', '毒性等级']):
             return 'ui_system', t
 
-    # 4. Books / Letters / Documents / Bestiary
+    # 4. 书籍/书信/文献档案/怪物图鉴
     has_html = '<br>' in t.lower() or '<i>' in t.lower()
     if has_html and len(t) > 60:
         return 'book_letter', t
     if len(t) > 150:
-        if any(w in t for w in ['傳說', '传说', '筆記', '笔记', '信', '敬啟', '敬启', '此致', '祝', '告示', '–', '—', '親愛的', '亲爱的', '老巫嫗', '老巫妪', '怪物', '生物']):
+        if any(w in t for w in ['傳說', '传说', '筆記', '笔记', '信', '敬啓', '敬启', '此致', '祝', '告示', '–', '—', '親愛的', '亲爱的', '老巫嫗', '老巫妪', '怪物', '生物']):
             return 'book_letter', t
         return 'journal', t
 
-    # 5. Quest objectives / Journals
+    # 5. 任务目标指引与任务日志
     if any(t.startswith(prefix) for prefix in [
         '利用狩魔獵人的感官能力', '利用猎魔人的感官能力', '打敗', '打败', '殺死', '杀死',
         '前往', '尋找', '寻找', '調查', '调查', '解救', '搜刮', '與', '与', '跟', '和',
@@ -145,7 +145,7 @@ def classify_text(act_id, khash, text):
     ]) and len(t) < 80 and not any(p in t for p in ['？', '！', '?', '!']):
         return 'journal', t
 
-    # 6. Dialogue / Spoken lines
+    # 6. 人物对话与口头台词
     has_sent_punct = any(p in t for p in ['。', '！', '？', '…', '，', '、', '：', '!', '?', ','])
     if has_sent_punct or len(t) >= 4:
         return 'dialogue', t
@@ -201,7 +201,7 @@ def decode_w3strings(filepath, output_dir=None):
 
         id_to_hash = {kid ^ magic: khash for khash, kid in keys}
 
-        # Decode all strings
+        # 解码并提取全部字符串
         all_records = []
         categories = {
             'dialogue': [],
@@ -222,7 +222,7 @@ def decode_w3strings(filepath, output_dir=None):
             all_records.append((act_id, khash, text))
             categories[cat].append((act_id, khash, clean_t))
 
-    # Sort each category by ID (preserves scene / dialogue flow)
+    # 按 ID 对每个分类排序（保持场景与对话树的自然叙事流向）
     all_records.sort(key=lambda r: r[0])
     for cat in categories:
         categories[cat].sort(key=lambda r: r[0])
@@ -233,7 +233,7 @@ def decode_w3strings(filepath, output_dir=None):
     print(f"    - 书籍书信与图鉴 (Books):    {len(categories['book_letter'])} 条")
     print(f"    - 界面与系统条目 (UI/System):{len(categories['ui_system'])} 条")
 
-    # 1. Full CSV export (All strings)
+    # 1. 导出全量 CSV 汇总（包含所有文本）
     csv_path = os.path.join(output_dir, "00_all_strings.csv")
     print(f"\n[*] Writing full CSV: {csv_path}")
     with open(csv_path, "w", encoding="utf-8-sig") as out:
@@ -243,7 +243,7 @@ def decode_w3strings(filepath, output_dir=None):
             escaped = txt.replace('"', '""')
             out.write(f'{aid},{kh_str},"{escaped}"\n')
 
-    # 2. Dialogues file
+    # 2. 导出剧情对话与台词文本
     dlg_path = os.path.join(output_dir, "01_dialogues.txt")
     print(f"[*] Writing dialogues: {dlg_path}")
     with open(dlg_path, "w", encoding="utf-8") as out:
@@ -252,7 +252,7 @@ def decode_w3strings(filepath, output_dir=None):
         for aid, _, txt in categories['dialogue']:
             out.write(f"[{aid}] {txt}\n")
 
-    # 3. Quest Journal & Narration
+    # 3. 导出任务日志与剧情记述
     jrn_path = os.path.join(output_dir, "02_quest_journal.txt")
     print(f"[*] Writing journal: {jrn_path}")
     with open(jrn_path, "w", encoding="utf-8") as out:
@@ -261,7 +261,7 @@ def decode_w3strings(filepath, output_dir=None):
             cleaned = clean_html_formatting(txt)
             out.write(f"【任务记录 ID: {aid}】\n{cleaned}\n\n{'-'*60}\n\n")
 
-    # 4. Books, Letters, Lore
+    # 4. 导出书籍文献、书信与图鉴
     book_path = os.path.join(output_dir, "03_books_and_letters.txt")
     print(f"[*] Writing books & lore: {book_path}")
     with open(book_path, "w", encoding="utf-8") as out:
@@ -270,7 +270,7 @@ def decode_w3strings(filepath, output_dir=None):
             cleaned = clean_html_formatting(txt)
             out.write(f"【文献/信件 ID: {aid}】\n{cleaned}\n\n{'='*60}\n\n")
 
-    # 5. Combined Pure Story Text (Reader Edition)
+    # 5. 导出合并版纯剧情文本（阅读专用版）
     story_all_path = os.path.join(output_dir, "04_story_compilation.txt")
     print(f"[*] Writing combined story compilation: {story_all_path}")
     with open(story_all_path, "w", encoding="utf-8") as out:
@@ -302,9 +302,9 @@ def decode_w3strings(filepath, output_dir=None):
     return True
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Extract Witcher 3 story texts from .w3strings files.")
-    parser.add_argument("input_file", nargs="?", default="zh.w3strings", help="Path to .w3strings file (default: zh.w3strings)")
-    parser.add_argument("-o", "--output", default="extracted_texts", help="Output directory path (default: extracted_texts)")
+    parser = argparse.ArgumentParser(description="从 .w3strings 文件中解密提取《巫师3》剧情文本。")
+    parser.add_argument("input_file", nargs="?", default="zh.w3strings", help=".w3strings 文件路径（默认: zh.w3strings）")
+    parser.add_argument("-o", "--output", default="extracted_texts", help="文本输出目录路径（默认: extracted_texts）")
     args = parser.parse_args()
 
     decode_w3strings(args.input_file, args.output)
