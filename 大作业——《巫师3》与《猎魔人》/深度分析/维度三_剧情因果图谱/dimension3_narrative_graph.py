@@ -6,7 +6,7 @@
   1. 小说确定性因果链条（Deterministic Linear Path）拓扑建模
   2. 游戏非确定性状态转移网络（DAG & Finite State Machine）拓扑建模
   3. 计算图论计量指标（节点度分布、分支因子、图直径、拓扑熵）
-  4. 输出全量知识图谱 JSON 底表、纯正学术 Markdown 报告与高保真交互式 ECharts 展台
+  4. 输出小说与游戏剧情因果网络的图论量化结果
 """
 
 import os
@@ -19,8 +19,9 @@ import numpy as np
 # ==========================================
 # 1. 路径配置
 # ==========================================
-SCRATCH_DIR = r"C:\Users\denve\.gemini\antigravity-cli\brain\5a4c6dab-31e2-4fb9-934a-46f18232e38e\scratch\dimension3_output"
-os.makedirs(SCRATCH_DIR, exist_ok=True)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+OUTPUT_DIR = os.path.join(BASE_DIR, "output")
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # ==========================================
 # 2. 剧情因果图谱结构定义（Knowledge Graph Triples）

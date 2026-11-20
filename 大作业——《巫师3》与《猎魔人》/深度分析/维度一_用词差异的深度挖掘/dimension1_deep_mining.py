@@ -23,7 +23,7 @@ from scipy.sparse.linalg import svds
 # 1. 语料文件路径与输出目录配置
 # ==========================================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_DIR = os.path.abspath(os.path.join(BASE_DIR, ".."))
+PROJECT_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", ".."))
 
 NOVEL_PATH = os.path.join(
     PROJECT_DIR,
@@ -32,8 +32,8 @@ NOVEL_PATH = os.path.join(
 )
 GAME_DIALOGUES_PATH = os.path.join(PROJECT_DIR, "解包文本及程序", "txt拆分", "01_dialogues.txt")
 
-SCRATCH_DIR = r"C:\Users\denve\.gemini\antigravity-cli\brain\5a4c6dab-31e2-4fb9-934a-46f18232e38e\scratch\dimension1_output"
-os.makedirs(SCRATCH_DIR, exist_ok=True)
+OUTPUT_DIR = os.path.join(BASE_DIR, "output")
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # ==========================================
 # 2. 情感极性与情感动力学模型 (Sentiment Lexicon & Dynamics)
@@ -49,13 +49,13 @@ POS_WORDS = {
 NEG_WORDS = {
     "绝望", "痛苦", "死亡", "尸体", "悲剧", "虚无", "诅咒", "腐烂", "恶", "仇恨", "背叛", "哭泣",
     "毁灭", "恐惧", "战栗", "怪物", "鲜血", "灾难", "屠杀", "残忍", "黑暗", "悔恨", "罪恶", "瘟疫",
-    "耻辱", "肮脏", "愤怒", "哀悼", "坟墓", "杀害", "毒药", "折磨", "下地狱", "怪物", "恶心", "丑陋",
+    "耻辱", "肮脏", "愤怒", "哀悼", "坟墓", "杀害", "毒药", "折磨", "下地狱", "恶心", "丑陋",
     "残酷", "悲伤", "残暴", "残骸", "血腥", "可怕", "凶狠", "绞死", "砍头", "疯子", "自杀", "断气",
     "欺骗", "杂种", "混蛋", "狗杂碎", "婊子", "放屁", "见鬼", "该死", "蠢货", "卑鄙", "凶手", "恶魔"
 }
 
 NEGATION_WORDS = {"不", "没", "无", "非", "别", "莫", "未", "绝不", "毫无", "难以", "决不", "永不"}
-INTENSIFIER_WORDS = {"非常", "极度", "万分", "无比", "格外", "极其", "太", "很", "格外", "最为", "尤其", "深"}
+INTENSIFIER_WORDS = {"非常", "极度", "万分", "无比", "格外", "极其", "太", "很", "最为", "尤其", "深"}
 
 def analyze_sentence_sentiment(tokens):
     """
@@ -104,7 +104,7 @@ STOP_WORDS = {
     "都", "要", "去", "到", "和", "就", "与", "或", "而", "对", "把", "被", "让", "给", "从",
     "向", "自", "上", "下", "里", "外", "前", "后", "中", "个", "这", "那", "些", "么", "之",
     "得", "地", "以", "及", "等", "因", "为", "所", "有", "其", "但", "若", "虽", "即", "便",
-    "又", "已", "自", "将", "并", "则", "更", "已", "只", "能", "会", "可", "好", "过", "多",
+    "又", "已", "将", "并", "则", "更", "只", "能", "会", "可", "好", "过", "多",
     "什", "哪", "谁", "怎", "说", "道", "看", "想", "听", "来", "做", "走", "回", "问", "知"
 }
 
@@ -292,7 +292,7 @@ def main():
     print(f"    -> [核心结论] 游戏情绪震荡烈度 (方差比): 小说的 {variance_ratio} 倍！")
 
     # ==========================================
-    # 实验 1.2：Word2Vec 语义空间对齐与语义漂移 (Semantic Shift)
+    # 实验 1.2：PPMI + SVD 语义空间对齐与语义漂移 (Semantic Shift)
     # ==========================================
     print("\n[3/4] 正在训练稠密词向量并计算语义漂移 (Semantic Shift)...")
     
@@ -300,14 +300,14 @@ def main():
     for custom_word in ["猎魔人", "杰洛特", "叶奈法", "特莉丝", "希里", "丹德里恩", "意外律", "白狼", "大恶", "小恶"]:
         jieba.add_word(custom_word)
 
-    print("    - 正在切分小说分词样本 (约 150 万字)...")
+    print("    - 正在切分小说分词样本 (前 40,000 句)...")
     novel_tokenized = []
     for sent in novel_raw_sents[:40000]:
         words = [w for w in jieba.cut(sent) if len(w) > 1 and w not in STOP_WORDS]
         if words:
             novel_tokenized.append(words)
 
-    print("    - 正在切分游戏对白分词样本 (约 150 万字)...")
+    print("    - 正在切分游戏对白分词样本 (前 40,000 条)...")
     game_tokenized = []
     for sent in game_raw_sents[:40000]:
         words = [w for w in jieba.cut(sent) if len(w) > 1 and w not in STOP_WORDS]
@@ -339,9 +339,9 @@ def main():
         }
 
     # ==========================================
-    # 4. 生成交付物并写入桌面与大作业目录
+    # 4. 生成结果文件
     # ==========================================
-    print("\n[4/4] 正在归纳成果并生成图表与报告...")
+    print("\n[4/4] 正在汇总数据并生成交互式图表...")
 
     # 4.1 全量数据 JSON
     all_data = {
@@ -366,19 +366,14 @@ def main():
     # 4.2 生成交互式可视化 HTML
     html_content = generate_html_report(all_data)
 
-    # 4.3 生成完整研究报告 Markdown
-    md_content = generate_markdown_report(all_data)
-
     # 写入输出目录
     try:
-        os.makedirs(SCRATCH_DIR, exist_ok=True)
-        with open(os.path.join(SCRATCH_DIR, "dimension1_data.json"), "w", encoding="utf-8") as f:
+        os.makedirs(OUTPUT_DIR, exist_ok=True)
+        with open(os.path.join(OUTPUT_DIR, "dimension1_data.json"), "w", encoding="utf-8") as f:
             json.dump(all_data, f, ensure_ascii=False, indent=2)
-        with open(os.path.join(SCRATCH_DIR, "dimension1_dashboard.html"), "w", encoding="utf-8") as f:
+        with open(os.path.join(OUTPUT_DIR, "dimension1_dashboard.html"), "w", encoding="utf-8") as f:
             f.write(html_content)
-        with open(os.path.join(SCRATCH_DIR, "dimension1_report.md"), "w", encoding="utf-8") as f:
-            f.write(md_content)
-        print(f"    [OK] 文件已成功输出到 SCRATCH_DIR: {SCRATCH_DIR}")
+        print(f"    [OK] 文件已成功输出到 OUTPUT_DIR: {OUTPUT_DIR}")
     except Exception as e:
         print(f"    [ERROR] 写入出现异常: {e}")
 
@@ -519,68 +514,6 @@ def generate_html_report(data):
 </html>
 """
     return html
-
-def generate_markdown_report(data):
-    """生成排版精美、可直接用于补强论文的研究报告"""
-    sd = data["sentiment_dynamics"]
-    shift = data["semantic_shift"]
-
-    md = f"""# 《巫师3》与《猎魔人》文本语言与受众策略对比研究
-## 深度挖掘专项报告（维度一：用词差异与情感时序动态演进）
-
-**研究核心**：从“面向读者（静心深度阅读）”与“面向玩家（即时具身沉浸）”的根本受众差异出发，突破传统静态词袋（Bag-of-Words）统计的局限，揭示两套媒介在**时序情感动力学（Sentiment Dynamics）**与**概念语义空间（Vector Space Embedding）**中的深层分流。
-
----
-
-### 一、 宏观情感动力学：从“延宕沉思之流”到“交互锯齿脉冲”
-
-在以往的跨媒介改编研讨中，评论者往往基于主观感知认为《巫师3》“完美继承了原著的黑暗阴郁风骨”。然而，通过对 157 万字小说全集与 155 万字游戏对白进行 100 阶段等距切片计算，计算语言学量化指标展现出颠覆性的微观真相：
-
-| 计量维度 | 《猎魔人》小说译本（面向读者） | 《巫师3》游戏对话（面向玩家） | 显著性与受众心理机制 |
-| :--- | :---: | :---: | :--- |
-| **全局情感均值 (Mean)** | **{sd['novel_overall_mean']}** | **{sd['game_overall_mean']}** | 均值整体相近，但游戏均值略高（任务成功回馈） |
-| **情绪方差 (Variance)** | **{sd['novel_overall_variance']}** | **{sd['game_overall_variance']}** | **游戏情绪波动方差是小说的 {sd['variance_ratio']} 倍！** |
-| **波形拓扑特征** | **平缓深沉、低谷延宕** | **高频锯齿、剧烈脉冲** | 读者静心消化悲剧 vs 玩家多模态负荷刺激循环 |
-
-#### 深度归因与理论阐释：
-1. **读者的“沉思流”（Contemplative Flow）**：
-   小说的情感曲线呈现出长周期的低频波动。读者在长篇对话、心理独白与萨普科夫斯基冷峻的讽刺中，沉浸于道德荒谬与无力感中。这种低沉并非单纯的“负能量”，而是为了满足文学受众审视道德困境、反刍存在主义危机的审美契约。
-2. **玩家的“应激脉冲”（Interactive Pulse）**：
-   游戏对话的情感曲线呈现极其密集的锯齿状（方差高达小说的 **{sd['variance_ratio']} 倍**）。这一现象深刻印证了游戏交互设计中的**「紧张-释放（Tension-Release Cycle）」**机制：
-   - 任务受挫/遭遇怪物/道德两难 → 情感急速坠入负极；
-   - 斩杀妖灵/拿到报酬/解救村民 → 情感瞬间脉冲式回调。
-   多模态认知负荷理论（Cognitive Load Theory）证明：如果开放世界游戏持续保持原著般的长周期压抑，玩家的注意广度将迅速耗尽并产生弃坑行为；频繁的情感振荡是维持玩家具身沉浸的必然工程手段。
-
----
-
-### 二、 核心锚点词的语义漂移（Semantic Shift）：两套受众心智的空间对齐
-
-采用正点互信息（PPMI）结合奇异值分解（SVD）训练了高维稠密词向量，提取出 4 大代表性核心概念在两套语料中的 Top-8 近邻词拓扑：
-
-"""
-    for word, res in shift.items():
-        n_words = ", ".join([f"`{w}` ({s})" for w, s in res["novel_neighbors"][:6]])
-        g_words = ", ".join([f"`{w}` ({s})" for w, s in res["game_neighbors"][:6]])
-        jaccard = round(res["jaccard_similarity"] * 100, 1)
-
-        md += f"""#### 核心意象：【{word}】（空间近邻重合率：{jaccard}%）
-- **小说空间（读者心智：形而上宿命）**：{n_words}
-- **游戏空间（玩家心智：行动与机制）**：{g_words}
-- **深层分流诠释**：
-  在面向读者的小说语料中，`{word}` 强力聚类于哲学争辩与命运羁绊；而在面向玩家的游戏语料中，`{word}` 被迅速降维并重组为**可执行的任务目标、经济激励与物理对抗指令**。
-
-"""
-
-    md += """---
-
-### 三、 成果文件清单（已直接归纳至桌面）
-
-本维度研究的所有支撑数据与工程资产已完整生成：
-1. **`维度一_交互式可视化探索展台.html`**：双击即可在任何浏览器中打开的单页看板（含 ECharts 100 阶段情感时序折线图与语义漂移卡片）；
-2. **`维度一_用词与情感时序全量数据.json`**：100 阶段情感均值、方差及词向量近邻全量计算数据；
-3. **`维度一_用词差异与情感时序深度挖掘报告.md`**：本篇完整学术研究报告，可直接无缝融入毕业大作业第 3.3 节与 5.1 节。
-"""
-    return md
 
 if __name__ == "__main__":
     main()

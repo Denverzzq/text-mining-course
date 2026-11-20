@@ -21,7 +21,7 @@ import numpy as np
 # 1. 路径配置
 # ==========================================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_DIR = os.path.abspath(os.path.join(BASE_DIR, ".."))
+PROJECT_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", ".."))
 
 NOVEL_PATH = os.path.join(
     PROJECT_DIR,
@@ -30,8 +30,8 @@ NOVEL_PATH = os.path.join(
 )
 GAME_DIALOGUES_PATH = os.path.join(PROJECT_DIR, "解包文本及程序", "txt拆分", "01_dialogues.txt")
 
-OUTPUT_SCRATCH = r"C:\Users\denve\.gemini\antigravity-cli\brain\5a4c6dab-31e2-4fb9-934a-46f18232e38e\scratch\dimension2_output"
-os.makedirs(OUTPUT_SCRATCH, exist_ok=True)
+OUTPUT_DIR = os.path.join(BASE_DIR, "output")
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # ==========================================
 # 2. 语料读取与纯对话提取
@@ -292,7 +292,7 @@ full_data = {
     }
 }
 
-json_path = os.path.join(OUTPUT_SCRATCH, "维度二_对话转移与声纹统计数据.json")
+json_path = os.path.join(OUTPUT_DIR, "维度二_对话转移与声纹统计数据.json")
 with open(json_path, 'w', encoding='utf-8') as f:
     json.dump(full_data, f, ensure_ascii=False, indent=2)
 
